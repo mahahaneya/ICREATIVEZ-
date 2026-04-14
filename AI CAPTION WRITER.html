@@ -1,0 +1,692 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>AI Caption Craft | Smart Caption Writer</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(145deg, #f5f7fa 0%, #e9eef3 100%);
+            font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+            padding: 2rem 1.5rem;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* main card - clean minimal */
+        .caption-app {
+            max-width: 900px;
+            width: 100%;
+            margin: 0 auto;
+            background: #ffffff;
+            border-radius: 2rem;
+            box-shadow: 0 20px 40px -12px rgba(0, 0, 0, 0.12), 0 2px 6px rgba(0, 0, 0, 0.02);
+            overflow: hidden;
+            transition: all 0.2s ease;
+        }
+
+        /* header - subtle elegance */
+        .app-header {
+            padding: 1.8rem 2rem 1.2rem 2rem;
+            background: #ffffff;
+            border-bottom: 1px solid #eef2f6;
+        }
+
+        .app-header h1 {
+            font-size: 1.85rem;
+            font-weight: 700;
+            color: #1a2c3e;
+            letter-spacing: -0.3px;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .app-header h1::before {
+            content: "✨";
+            font-size: 1.8rem;
+            background: none;
+        }
+
+        .subhead {
+            color: #6b7a8a;
+            margin-top: 0.5rem;
+            font-size: 0.9rem;
+            font-weight: 400;
+            border-left: 3px solid #3b82f6;
+            padding-left: 0.75rem;
+        }
+
+        /* main content */
+        .main-panel {
+            padding: 2rem 2rem 1.8rem 2rem;
+        }
+
+        /* input group */
+        .input-group {
+            margin-bottom: 1.8rem;
+        }
+
+        label {
+            font-weight: 600;
+            font-size: 0.85rem;
+            color: #334155;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 0.6rem;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+
+        .prompt-input {
+            width: 100%;
+            padding: 1rem 1.2rem;
+            font-size: 0.95rem;
+            font-family: inherit;
+            border: 1.5px solid #e2e8f0;
+            border-radius: 1rem;
+            background: #fafcff;
+            transition: 0.2s;
+            resize: vertical;
+            outline: none;
+            line-height: 1.45;
+        }
+
+        .prompt-input:focus {
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        /* tone selector */
+        .tone-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.8rem;
+            margin-bottom: 1.8rem;
+            align-items: center;
+        }
+
+        .tone-label {
+            font-weight: 600;
+            font-size: 0.8rem;
+            color: #475569;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+
+        .tone-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.6rem;
+        }
+
+        .tone-btn {
+            background: #f1f5f9;
+            border: none;
+            padding: 0.45rem 1.1rem;
+            border-radius: 2rem;
+            font-size: 0.8rem;
+            font-weight: 500;
+            font-family: inherit;
+            color: #334155;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .tone-btn.active {
+            background: #3b82f6;
+            color: white;
+            box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
+        }
+
+        .tone-btn:hover:not(.active) {
+            background: #e2e8f0;
+            transform: translateY(-1px);
+        }
+
+        /* generate button */
+        .generate-btn {
+            background: #1e293b;
+            color: white;
+            border: none;
+            padding: 0.9rem 1.6rem;
+            font-size: 0.95rem;
+            font-weight: 600;
+            border-radius: 2rem;
+            cursor: pointer;
+            width: 100%;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            margin-bottom: 1.8rem;
+        }
+
+        .generate-btn:hover {
+            background: #0f172a;
+            transform: translateY(-1px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+        }
+
+        .generate-btn:active {
+            transform: translateY(0);
+        }
+
+        /* result area */
+        .result-area {
+            background: #f8fafc;
+            border-radius: 1.2rem;
+            border: 1px solid #eef2f6;
+            padding: 1.2rem;
+            margin-bottom: 1.2rem;
+            transition: all 0.2s;
+        }
+
+        .result-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            margin-bottom: 0.8rem;
+            border-bottom: 1px solid #e2e8f0;
+            padding-bottom: 0.5rem;
+        }
+
+        .result-header span {
+            font-weight: 700;
+            color: #475569;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .copy-btn {
+            background: transparent;
+            border: 1px solid #cbd5e1;
+            font-size: 0.75rem;
+            font-weight: 500;
+            color: #475569;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            padding: 0.3rem 0.8rem;
+            border-radius: 2rem;
+            transition: 0.15s;
+        }
+
+        .copy-btn:hover {
+            background: #3b82f6;
+            border-color: #3b82f6;
+            color: white;
+        }
+
+        .caption-text {
+            font-size: 1rem;
+            line-height: 1.5;
+            color: #1e293b;
+            white-space: pre-wrap;
+            word-break: break-word;
+            font-weight: 450;
+            padding: 0.2rem 0;
+            min-height: 100px;
+        }
+
+        .empty-state {
+            color: #94a3b8;
+            text-align: center;
+            padding: 1.5rem 0.5rem;
+            font-style: normal;
+            font-size: 0.9rem;
+        }
+
+        /* loading animation */
+        .loader {
+            display: inline-block;
+            width: 18px;
+            height: 18px;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 0.7s linear infinite;
+            margin-right: 6px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* suggestions */
+        .suggestions {
+            margin-top: 1rem;
+            background: #f8fafc;
+            border-radius: 1rem;
+            padding: 1rem;
+            border: 1px solid #eef2f6;
+        }
+
+        .suggestions p {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: #64748b;
+            margin-bottom: 0.6rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .chip-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.6rem;
+        }
+
+        .chip {
+            background: white;
+            border: 1px solid #e2e8f0;
+            padding: 0.4rem 1rem;
+            border-radius: 2rem;
+            font-size: 0.75rem;
+            font-weight: 500;
+            color: #475569;
+            cursor: pointer;
+            transition: 0.15s;
+        }
+
+        .chip:hover {
+            background: #3b82f6;
+            border-color: #3b82f6;
+            color: white;
+            transform: translateY(-1px);
+        }
+
+        /* toast */
+        .toast-msg {
+            position: fixed;
+            bottom: 25px;
+            left: 50%;
+            transform: translateX(-50%) scale(0.9);
+            background: #1e293b;
+            color: white;
+            padding: 0.6rem 1.4rem;
+            border-radius: 2rem;
+            font-size: 0.8rem;
+            font-weight: 500;
+            opacity: 0;
+            transition: opacity 0.2s, transform 0.2s;
+            pointer-events: none;
+            z-index: 1000;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        .toast-msg.show {
+            opacity: 1;
+            transform: translateX(-50%) scale(1);
+        }
+
+        footer {
+            text-align: center;
+            font-size: 0.7rem;
+            color: #94a3b8;
+            padding: 1.2rem 2rem 1.5rem;
+            border-top: 1px solid #eef2f6;
+            background: #ffffff;
+        }
+
+        @media (max-width: 550px) {
+            body { padding: 1rem; }
+            .main-panel { padding: 1.5rem; }
+            .app-header h1 { font-size: 1.5rem; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="caption-app">
+    <div class="app-header">
+        <h1>AI Caption Writer</h1>
+        <div class="subhead">Smart, engaging captions — generate trendy, witty or heartfelt text in seconds.</div>
+    </div>
+    <div class="main-panel">
+        <div class="input-group">
+            <label>📝 Describe your post or topic</label>
+            <textarea class="prompt-input" id="userPrompt" rows="3" placeholder="E.g., 'Sunset at the beach with friends', 'New coffee shop opening', 'Motivational monday', 'Product launch — smart watch'"></textarea>
+        </div>
+
+        <div class="tone-row">
+            <span class="tone-label">🎭 Tone:</span>
+            <div class="tone-buttons" id="toneButtons">
+                <button data-tone="witty" class="tone-btn">Witty & Fun</button>
+                <button data-tone="professional" class="tone-btn">Professional</button>
+                <button data-tone="inspirational" class="tone-btn">Inspirational</button>
+                <button data-tone="casual" class="tone-btn active">Casual / Chill</button>
+                <button data-tone="bold" class="tone-btn">Bold & Empowering</button>
+                <button data-tone="romantic" class="tone-btn">Romantic</button>
+            </div>
+        </div>
+
+        <button class="generate-btn" id="generateBtn">
+            <span>✨ Generate AI Caption</span>
+        </button>
+
+        <div class="result-area" id="resultArea">
+            <div class="result-header">
+                <span>✍️ Your AI Caption</span>
+                <button class="copy-btn" id="copyCaptionBtn">📋 Copy</button>
+            </div>
+            <div class="caption-text" id="captionOutput">
+                <div class="empty-state">✨ Describe your moment & pick a tone — AI will craft the perfect caption.</div>
+            </div>
+        </div>
+
+        <div class="suggestions">
+            <p>💡 Quick topic ideas</p>
+            <div class="chip-list" id="suggestionsList">
+                <div class="chip">🌅 Golden hour vibes</div>
+                <div class="chip">☕ Morning coffee ritual</div>
+                <div class="chip">💪 Gym progress</div>
+                <div class="chip">🎉 Birthday celebration</div>
+                <div class="chip">📚 Late night study</div>
+                <div class="chip">🐾 Pet love</div>
+                <div class="chip">💼 Work achievement</div>
+                <div class="chip">🌙 Night sky thoughts</div>
+            </div>
+        </div>
+    </div>
+    <footer>
+        🧠 AI Caption Engine 2026 · All Rights Reserved By @MAHA HANEYA MUGHAL
+    </footer>
+</div>
+
+<div id="toastMsg" class="toast-msg">📋 Copied to clipboard!</div>
+
+<script>
+    // -------------------- Enhanced AI Caption Generation Logic --------------------
+    // Smart, contextual, tone-aware caption generator
+    
+    const toneStrategies = {
+        witty: {
+            prefixes: ["Plot twist:", "Spoiler:", "Hot take:", "Unpopular opinion:", "Current mood:", "Real talk:"],
+            verbs: ["vibing", "slaying", "manifesting", "breaking the internet with", "serving"],
+            signoffs: ["mic drop 🎤", "that's the tea ☕", "don't @ me", "periodt", "stay iconic ✨"],
+            emojis: ["😂", "🔥", "👀", "✨", "💅", "🤙", "🎯"],
+            sentenceStyle: "witty"
+        },
+        professional: {
+            prefixes: ["Insight:", "Key takeaway:", "Strategic thought:", "Growth moment:", "Reflection:"],
+            verbs: ["delivering", "optimizing", "driving results", "innovating", "leading with purpose"],
+            signoffs: ["#BusinessMindset", "Onwards & upwards", "Precision & purpose", "Elevate your craft"],
+            emojis: ["💼", "📈", "⚡", "🎯", "✅", "🏆"],
+            sentenceStyle: "polished"
+        },
+        inspirational: {
+            prefixes: ["Believe in", "Remember:", "The journey matters:", "Your only limit is", "Rise and shine:"],
+            verbs: ["becoming", "unlocking", "embracing the climb", "turning dreams into plans", "showing up"],
+            signoffs: ["Keep going ✨", "Dream big", "Stay fearless", "You got this 💪", "#KeepMoving"],
+            emojis: ["🌟", "💫", "🌻", "🚀", "💪", "✨"],
+            sentenceStyle: "uplift"
+        },
+        casual: {
+            prefixes: ["Just gonna leave this here", "Honestly?", "Ngl,", "Real ones know", "POV:", "So about today..."],
+            verbs: ["chillin'", "vibin'", "living that", "enjoying the little things", "doing the most"],
+            signoffs: ["catch ya later", "that's it that's the post", "🤷‍♂️ just saying", "later skater", "peace out"],
+            emojis: ["😌", "🍃", "✨", "👌", "🎧", "🌊"],
+            sentenceStyle: "relaxed"
+        },
+        bold: {
+            prefixes: ["Watch me.", "No excuses.", "Take note:", "Unstoppable:", "Announcement:", "Game changer:"],
+            verbs: ["dominating", "conquering", "rewriting the rules", "owning my power", "smashing goals"],
+            signoffs: ["Stay dangerous", "#BoldMoves", "Legacy mode ON", "silence the critics"],
+            emojis: ["⚡", "👑", "🔥", "💥", "🚀", "🔊"],
+            sentenceStyle: "powerful"
+        },
+        romantic: {
+            prefixes: ["Heart full:", "Soft moments:", "Falling for:", "Love letter to:", "Endless:"],
+            verbs: ["cherishing", "melting into", "wrapped in warmth", "falling deeper", "holding onto"],
+            signoffs: ["all the feels 💕", "endless love", "heartbeat sync", "soulmate energy", "forever yours"],
+            emojis: ["💖", "🌸", "🥰", "💫", "🌹", "🕯️"],
+            sentenceStyle: "tender"
+        }
+    };
+
+    const adjectives = {
+        witty: ["ridiculous", "iconic", "savage", "chaotic", "legendary", "extra"],
+        professional: ["strategic", "impactful", "data-driven", "sustainable", "streamlined", "visionary"],
+        inspirational: ["limitless", "fearless", "resilient", "courageous", "radiant", "unstoppable"],
+        casual: ["chill", "cozy", "messy but happy", "lowkey", "highkey", "vibe-worthy"],
+        bold: ["fearless", "ferocious", "unapologetic", "powerful", "unstoppable", "titanic"],
+        romantic: ["tender", "dreamy", "ethereal", "magical", "heartfelt", "sweet"]
+    };
+
+    const actionVerbs = {
+        witty: ["rocking", "vibing with", "lowkey obsessed with", "spilling the tea on"],
+        professional: ["executing", "leveraging", "implementing", "streamlining", "delivering value through"],
+        inspirational: ["reaching for", "embracing", "evolving through", "transforming into", "believing in"],
+        casual: ["enjoying", "vibing to", "savoring", "living for", "chasing that feeling of"],
+        bold: ["owning", "commanding", "revolutionizing", "crushing", "annihilating"],
+        romantic: ["adoring", "treasuring", "cherishing", "embracing", "falling for"]
+    };
+
+    function capitalize(str) {
+        if (!str) return str;
+        return str.charAt(0).toUpperCase() + str.slice(1);
+    }
+
+    function generateAICaption(userInput, tone) {
+        if (!userInput || userInput.trim() === "") {
+            return "✨ Describe something above, and I'll write magic! Try 'sunset' or 'coffee break' ☕";
+        }
+        
+        const strategy = toneStrategies[tone];
+        const adjList = adjectives[tone] || adjectives.casual;
+        const verbList = actionVerbs[tone] || actionVerbs.casual;
+        
+        let rawTopic = userInput.trim();
+        let topicWords = rawTopic.split(/\s+/);
+        let mainTopic = rawTopic.length > 45 ? rawTopic.substring(0, 45) + "..." : rawTopic;
+        let keyword = topicWords.slice(0, 3).join(" ").toLowerCase();
+        if (keyword.length < 3) keyword = mainTopic;
+        
+        const usePrefix = Math.random() > 0.3;
+        let prefix = usePrefix ? strategy.prefixes[Math.floor(Math.random() * strategy.prefixes.length)] + " " : "";
+        
+        let adjChoice = adjList[Math.floor(Math.random() * adjList.length)];
+        let verbChoice = verbList[Math.floor(Math.random() * verbList.length)];
+        
+        let middleSentence = "";
+        
+        if (strategy.sentenceStyle === "witty" || strategy.sentenceStyle === "relaxed") {
+            middleSentence = `${verbChoice} ${adjChoice} ${keyword} vibes.`;
+        } else if (strategy.sentenceStyle === "polished") {
+            middleSentence = `${verbChoice} on ${adjChoice} solutions around ${keyword}. Elevate your approach.`;
+        } else if (strategy.sentenceStyle === "uplift") {
+            middleSentence = `${verbChoice} the ${adjChoice} journey with ${keyword} — every step matters.`;
+        } else if (strategy.sentenceStyle === "powerful") {
+            middleSentence = `${verbChoice} every moment. ${adjChoice} energy meets ${keyword}. Let's go.`;
+        } else if (strategy.sentenceStyle === "tender") {
+            middleSentence = `${verbChoice} these ${adjChoice} ${keyword} moments. Pure magic.`;
+        } else {
+            middleSentence = `${verbChoice} this ${adjChoice} ${keyword} moment.`;
+        }
+        
+        let emojis = strategy.emojis;
+        let emojiCount = tone === "bold" || tone === "romantic" ? 2 : (tone === "professional" ? 1 : 2);
+        let selectedEmojis = [];
+        for (let i = 0; i < emojiCount; i++) {
+            let randEmoji = emojis[Math.floor(Math.random() * emojis.length)];
+            if (!selectedEmojis.includes(randEmoji)) selectedEmojis.push(randEmoji);
+        }
+        let emojiStr = selectedEmojis.join(" ");
+        
+        let useSignoff = Math.random() > 0.4;
+        let signoff = useSignoff ? strategy.signoffs[Math.floor(Math.random() * strategy.signoffs.length)] : "";
+        
+        let topicHashtag = "#" + rawTopic.replace(/\s+/g, '').substring(0, 20).toLowerCase().replace(/[^a-z0-9]/gi, '');
+        if (topicHashtag.length > 25) topicHashtag = topicHashtag.substring(0, 22);
+        let hashtag = topicHashtag.length > 2 ? ` ${topicHashtag}` : "#vibes";
+        
+        let caption = "";
+        if (prefix) caption += prefix;
+        caption += capitalize(middleSentence);
+        if (emojiStr) caption += ` ${emojiStr}`;
+        if (signoff) caption += ` — ${signoff}`;
+        if (!signoff && Math.random() > 0.5) caption += ` ${hashtag}`;
+        else if (signoff && Math.random() > 0.6) caption += ` ${hashtag}`;
+        
+        caption = caption.replace(/\s+/g, ' ').trim();
+        if (!caption.match(/[.!?—]$/) && !caption.includes(emojiStr)) caption += " ✨";
+        else if (!caption.match(/[.!?—]$/)) caption += ".";
+        
+        if (caption.length < 25 && rawTopic.length > 0) {
+            caption += ` Let's talk ${keyword} 🎉`;
+        }
+        
+        return caption;
+    }
+    
+    function getSmartCaption(userInput, tone) {
+        let base = generateAICaption(userInput, tone);
+        if (userInput.length > 4 && Math.random() > 0.75) {
+            let alt = generateAICaption(userInput, tone);
+            if (alt !== base && alt.length > 10) base = alt + " 🌟";
+        }
+        return base;
+    }
+    
+    // DOM Elements
+    let currentTone = "casual";
+    const toneBtns = document.querySelectorAll('.tone-btn');
+    const generateBtn = document.getElementById('generateBtn');
+    const userPromptTextarea = document.getElementById('userPrompt');
+    const captionOutputDiv = document.getElementById('captionOutput');
+    const copyBtn = document.getElementById('copyCaptionBtn');
+    const toast = document.getElementById('toastMsg');
+    const suggestionsChips = document.querySelectorAll('.chip');
+    
+    function updateToneUI() {
+        toneBtns.forEach(btn => {
+            if (btn.getAttribute('data-tone') === currentTone) {
+                btn.classList.add('active');
+            } else {
+                btn.classList.remove('active');
+            }
+        });
+    }
+    
+    toneBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            const toneVal = btn.getAttribute('data-tone');
+            if (toneVal) {
+                currentTone = toneVal;
+                updateToneUI();
+            }
+        });
+    });
+    
+    function renderCaption(captionText) {
+        captionOutputDiv.innerHTML = `<div class="caption-text">${escapeHtml(captionText)}</div>`;
+    }
+    
+    function escapeHtml(str) {
+        return str.replace(/[&<>]/g, function(m) {
+            if (m === '&') return '&amp;';
+            if (m === '<') return '&lt;';
+            if (m === '>') return '&gt;';
+            return m;
+        });
+    }
+    
+    function setLoadingState(isLoading) {
+        if (isLoading) {
+            generateBtn.innerHTML = `<span class="loader"></span> AI thinking...`;
+            generateBtn.disabled = true;
+            captionOutputDiv.innerHTML = `<div class="empty-state">✨ Cooking up something clever...</div>`;
+        } else {
+            generateBtn.innerHTML = `<span>✨ Generate AI Caption</span>`;
+            generateBtn.disabled = false;
+        }
+    }
+    
+    async function generateCaption() {
+        let prompt = userPromptTextarea.value.trim();
+        if (prompt === "") {
+            captionOutputDiv.innerHTML = `<div class="empty-state">💡 Oops! Describe your post first (e.g., "beach sunset" or "new startup").</div>`;
+            return;
+        }
+        setLoadingState(true);
+        await new Promise(resolve => setTimeout(resolve, 400));
+        const finalCaption = getSmartCaption(prompt, currentTone);
+        renderCaption(finalCaption);
+        setLoadingState(false);
+    }
+    
+    async function copyCaption() {
+        let captionTextElem = document.querySelector('#captionOutput .caption-text');
+        if (!captionTextElem) return;
+        let textToCopy = captionTextElem.innerText;
+        if (!textToCopy || textToCopy.includes("Describe your post") || textToCopy.includes("Oops!")) {
+            showToast("⚠️ No caption to copy. Generate one first!", 1500);
+            return;
+        }
+        try {
+            await navigator.clipboard.writeText(textToCopy);
+            showToast("📋 Copied to clipboard!", 1800);
+        } catch (err) {
+            showToast("❌ Could not copy", 1200);
+        }
+    }
+    
+    function showToast(message, duration = 1800) {
+        toast.textContent = message;
+        toast.classList.add('show');
+        setTimeout(() => {
+            toast.classList.remove('show');
+        }, duration);
+    }
+    
+    generateBtn.addEventListener('click', generateCaption);
+    copyBtn.addEventListener('click', copyCaption);
+    
+    suggestionsChips.forEach(chip => {
+        chip.addEventListener('click', () => {
+            let chipText = chip.innerText.trim();
+            let fullTopic = chipText;
+            if (chipText.includes("🌅")) fullTopic = "Golden hour beach sunset with friends";
+            else if (chipText.includes("☕")) fullTopic = "Morning coffee ritual with fresh brew";
+            else if (chipText.includes("💪")) fullTopic = "Gym workout & fitness progress";
+            else if (chipText.includes("🎉")) fullTopic = "Birthday celebration with friends";
+            else if (chipText.includes("📚")) fullTopic = "Late night studying & focus";
+            else if (chipText.includes("🐾")) fullTopic = "Cute pet moments & cuddles";
+            else if (chipText.includes("💼")) fullTopic = "Big work achievement & promotion";
+            else if (chipText.includes("🌙")) fullTopic = "Stargazing night sky thoughts";
+            else fullTopic = chipText;
+            userPromptTextarea.value = fullTopic;
+            generateCaption();
+        });
+    });
+    
+    userPromptTextarea.addEventListener('keydown', (e) => {
+        if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+            e.preventDefault();
+            generateCaption();
+        }
+    });
+    
+    updateToneUI();
+    
+    if (!userPromptTextarea.value) {
+        userPromptTextarea.value = "Creative writing session ✍️";
+    }
+</script>
+</body>
+</html>
